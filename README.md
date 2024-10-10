@@ -1,8 +1,9 @@
  # Capstone-Project-Wordpress-site-on-AWS
  ## Objective
 
- This project is a practical exploration of various AWS resources to design and implement a high performance WordPress solution which incorporates networking, compute, object solution and database in its design. We will design this for _Digitalboost_, a small to medium-sized digital marketing agency to enhance its online presence.
- To achieve this, we will design and configure the following:
+  This project is a practical exploration of various AWS resources to design and implement a high performance WordPress solution which incorporates networking, compute, object solution and database in its design. 
+  We will design this for _Digitalboost_, a small to medium-sized digital marketing agency to enhance its online presence.
+  To achieve this, we will design and configure the following:
 
  * Virtual Private Cloud (VPC)
  * Public and Private subnets
@@ -11,56 +12,69 @@
  * Application Load Balancer
  * Auto scaling Group
 
- We will therefore split this project into six parts to extensively cover the  details of the setup
+  We will therefore split this project into six parts to extensively cover the  details of the setup.
 
  ### PART 1
  **VPC Setup**
- To setup VPC, first we will define the IP address range for the VPC
+  To setup VPC, first we will define the IP address range for the VPC.
 
- We will use a CIDR of 192.168.0.0/16 for our VPC.
- To determine the number of available IP address in the above CIDR block using the following
+  We determined a CIDR of 192.168.0.0/16 for our VPC.
+
+  To determine the number of available IP address in the above CIDR block, we  use the following formular.
  
- 2^(32 - CIDR notation) - 2
- =65,534.
- Therefore,65,534 possible IP addresses are available for the VPC. We proceed to fill up necessary details to configure our VPC.
- We create and named a VPC: WordPress vpc
+  2^(32 - CIDR notation) - 2
+  =65,534.
 
- ![alt text](<Images/Image 2.PNG>)
+  Therefore,65,534 possible IP addresses are available for the VPC.  
+  We proceed to fill up necessary details to configure our VPC.
 
- ### PART 2
- **Public and Private Subnet Setup**
+  We created and named a VPC: **WordPress vpc**
 
- We  will configure subnets within the VPC.
- We create a total of six(6) subnets, two(2) Public subnets in two different availability zones (us-east-1a and us-east-1b).The 2 Public subnets are setup for resources accessible from the internet.
- We then setup four(4) private subnets, two each within the above availability zones.The private subnets are for resourceswith no direct internet access. We also defined their CIDR blocks.
+  ![alt text](<Images/Image 2.PNG>)
+
+  ### PART 2
+  **Public and Private Subnet Setup**
+
+  We  will configure subnets within the VPC.
+
+  We create a total of six(6) subnets, two(2) Public subnets in two different availability zones (us-east-1a and us-east-1b).
+  The 2 Public subnets are setup for resources accessible from the internet.
+  We then setup four(4) private subnets, two each within the above availability zones. 
+  The private subnets are for resources with no direct internet access. Their CIDR blocks are also defined.
 
  ![alt text](<Images/Image 3.PNG>)
 
 
- **Creating Internet Gateway**
+  **Creating Internet Gateway**
 
- Next we create an Internet gatewy and attach it to the VPC. The Internet Gateway successfully attached to the VPC allows resources in the VPC to connect to the internet.
+  Next, we create an Internet gatewy and attach it to the VPC. 
+  The Internet Gateway successfully attached to the VPC allows resources in the VPC to connect to the internet.
 
  ![alt text](<Images/Image 4.PNG>)
 
  ![alt text](<Images/Image 5.PNG>)
 
- **Creating Route Tables**
-  We create two route tables;
+  **Creating Route Tables**
+
+  We will create two route tables;
   The Public route table and the Main route table.
 
  ![alt text](<Images/Image 6.PNG>)
 
- We edit the Public route table to route traffic to the internet gateway  thereby allowing connectivity to the internet.
+  The Public route table is edited to route traffic to the internet gateway  thereby allowing connectivity to the internet.
  
 
   ![alt text](<Images/Image 7.PNG>)
 
+
   ![alt text](<Images/Image 8.PNG>)
 
-  We will associate the Public route table  with the two public subnets
+
+  We associate the Public route table  with the two public subnets.
+
 
   ![alt text](<Images/Image 9.PNG>)
+
 
   **NAT Gateway Configuration**
 
@@ -75,9 +89,12 @@
 
   ![alt text](<Images/Image 11.PNG>)
 
+
   ![alt text](<Images/Image 12.PNG>)
 
-  Next we set up MySQL RDS to manage _DigitalBoost_ wordpress data in the cloud.
+
+  Next, we set up MySQL RDS to manage _DigitalBoost_ wordpress data in the cloud.
+
 
   ### PART 3
   **AWS MySQL RDS Setup**
@@ -91,18 +108,22 @@
 
   **3.2, Security Group Configuration**
 
-  We will configure security group for the RDS instance and add an inbound rule for MySQL/Aurora on port 3306, allowing traffic fom the 0.0.0.0/0 CIDR range. 
+  We will configure security group for the RDS instance and add an inbound rule for MySQL/Aurora on port 3306, allowing traffic from the 0.0.0.0/0 CIDR range. 
   This ensures that the security group attached to the database permits inbound traffic on port 3306.
 
+
   ![alt text](<Images/Image 14.PNG>)
+
 
   **3.3, WordPress-RDS Connection**
   
   Still on the AWS console, we locate EC2 and configure an Amazon Linux 2 Instance named Wordpress-App, to connect to our database.
 
+
   ![alt text](<Images/Image 15.PNG>)
+
   
-  Now we go further to configure our Amazon RDS database to connect to the EC2, by modifying our RDS database security group to allow network access to _WordPress-App_ EC2.
+  Now, we go further to configure our Amazon RDS database to connect to the EC2, by modifying our RDS database security group to allow network access to _WordPress-App_ EC2.
   Here for source we enter wordpress, we choose the wordpress security group that we used for our EC2 instance.
   
   ![alt text](<Images/Image 16.PNG>)
@@ -111,13 +132,15 @@
   
   **3.4, Creating a Database User**
  
-  First we run the following command to install MySQL client to interact with the database.
+  First, we run the following command to install MySQL client to interact with the database.
 
   sudo yum install -y mysql
 
   ![alt text](<Images/Image 17.PNG>)
 
+
   ![alt text](<Images/Image 18.PNG>)
+
 
   We also set the environment variable for MySQL host.
 
@@ -125,7 +148,9 @@
 
   Note: We replace endpoint with the hostname of our RDS instance.
 
+
   ![alt text](<Images/Image 19.PNG>)
+
 
   Next, we run the following command to connect MySQL database. We replace 
   user and password with the master username and password we configured when creating the RDS database.
@@ -143,6 +168,7 @@
 
 
   **3.5, Configuring WordPress on EC2**
+
   We will install the WordPress application and its dependencies on the EC2 instance so as to have a WordPress installation that is accessible on the web browser.
 
   * Installing the Apache web server
@@ -198,6 +224,171 @@
     With the configuration updated we are on our way to deploy our website!
 
     **Deploying WordPress**
+
+    in this step, we make our Apache web server handle requests for WordPress.
+    We install the application dependencies needed for WordPress, we run the following command
+
+    sudo amazon-linux-extras install -y mariadb10.5 php8.2
+
+    ![alt text](<Images/Image 28.PNG>)
+
+    Change to the proper directory with the command
+
+    cd /home/ec2-user
+
+    ![alt text](<Images/Image 29.PNG>)
+
+    We then copy our WordPress application files into the /var/www/html directory used by Apache.
+
+    sudo cp -r wordpress/* /var/www/html/
+
+    Finally we restart the Apache web server to pick up the changes.
+
+    sudo service httpd restart
+
+ ![alt text](<Images/Image 30.PNG>)
+
+ ![alt text](<Images/Image 31.PNG>)
+
+ With this we have a publicly accessible WordPress installation using a fully managed MySQL database.
+
+ ### PART 4
+
+ **EFS Setup for WordPress Files**
+
+ Here, we will utilize Amazon Elastic File System to store WordPress files for scalable and shared access.
+
+ **4.1, Creating an EFS file system**
+ On the AWS console we locate and click create file system.
+
+ Our EFS is named **Wordpress-efs** 
+
+ ![alt text](<Images/Image 32.PNG>)
+
+ We will create two WordPress EC2 instances using Amazon Linux 2, with which to attach and mount our EFS.
+
+
+![alt text](<Images/Image 33.PNG>)
+
+ 
+ Next we'll create a security group to allow access from our EC2 instance to our EFS specicifying the following:
+ Type: NFS
+ Port Range: 2049
+ Source: 0.0.0.0/0
+
+
+ ![alt text](<Images/Image 34.PNG>)
+
+
+ **4.2, Mounting the EFS file system on WordPress instances**
+
+ Back on the EFS page, we select the file system just created and click attach on the top right hand corner so as to mount our file system.
+
+ Note: For regional EfS setup, EfS automatically created  a mount point for all availability zones.
+
+ On our terminal ,SSH into our instance  and install the NFS client using 
+
+  sudo yum -y install nfs -utils
+
+  ![alt text](<Images/Image 35.PNG>)
+
+  To start NFS service
+
+  sudo service nfs start
+
+  Then we check the status of the NFS service to ensure its running
+
+  sudo srvice nfs status
+
+  ![alt text](<Images/Image 36.PNG>)
+
+
+  We swich to root user with
+
+  sudo su
+
+  then proceed to check the file system using command
+
+
+  df -khP
+
+
+  Create a folder (efs) on which to mount the EFS
+
+  Using the NFS client, we copy the mount command to mount our files.
+
+
+  ![alt text](<Images/Image 37.PNG>)
+
+
+  Next, we check the file system again to confirm that the file is attached 
+  
+  df -khP
+
+  ![alt text](<Images/Image 38.PNG>)
+
+
+  and run the following command to enter into the folder created.
+
+
+  cd /home/ec2-user efs2
+
+  Next, run:
+
+  pwd
+  
+  To check our current location.
+
+  We will then develop contents in a file
+
+  echo "hello world" > demo.txt and proceed to view the contents of the file with:
+
+
+  cat demo.txt
+
+
+ ![alt text](<Images/Image 39.PNG>)
+
+  To mount the EFS in the second EC2 instance, we repeat the process above to check the file system and mount our files.
+
+
+  ![alt text](<Images/Image 40.PNG>)
+
+
+
+  ![alt text](<Images/Image 41.PNG>)
+
+  We will add a new line in the file using vim text editor, this will also reflect in the first file mounted
+
+  ![alt text](<Images/Image 42.PNG>)
+
+  ![alt text](<Images/Image 43.PNG>)
+
+
+  The above edit is also seen in the first file mounted earlier.
+
+  ![alt text](<Images/Image 44.PNG>)
+
+ * Configuring WordPress to use the shared file system
+ 
+  To configure WordPress to use the shared file system the file permissions will be edited with 
+  
+  chmod 777 demo.txt
+
+  ![alt text](<Images/Image 45.PNG>)
+
+  We can see both instances using the same file system
+
+
+  ![alt text](<Images/Image 46.PNG>)
+
+  
+
+
+
+
+
+
 
 
 
