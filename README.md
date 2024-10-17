@@ -33,7 +33,7 @@
   ![alt text](<Images/Image 2.PNG>)
 
   ### PART 2
-  **Public and Private Subnet Setup**
+  **2.1, Public and Private Subnet Setup**
 
   We  will configure subnets within the VPC.
 
@@ -45,7 +45,7 @@
  ![alt text](<Images/Image 3.PNG>)
 
 
-  **Creating Internet Gateway**
+  **2.2, Creating Internet Gateway**
 
   Next, we create an Internet gatewy and attach it to the VPC. 
   The Internet Gateway successfully attached to the VPC allows resources in the VPC to connect to the internet.
@@ -54,7 +54,7 @@
 
  ![alt text](<Images/Image 5.PNG>)
 
-  **Creating Route Tables**
+  **2.3, Creating Route Tables**
 
   We will create two route tables;
   The Public route table and the Main route table.
@@ -76,7 +76,7 @@
   ![alt text](<Images/Image 9.PNG>)
 
 
-  **NAT Gateway Configuration**
+  **2.4, NAT Gateway Configuration**
 
   First, we create and associate an Elastic IP for NAT Gateway configuration, then create a NAT gateway for private subnet internet access.
   After creating the NAT Gateway, we update the route table of the private route table to attach the NAT Gateway to the private route table.
@@ -171,7 +171,8 @@
 
   We will install the WordPress application and its dependencies on the EC2 instance so as to have a WordPress installation that is accessible on the web browser.
 
-  * Installing the Apache web server
+  * Installing the Apache web server.
+
     To run a Wordpress, we need to run a web server on our EC2 instance; we will use the open source Apache web server.
     We run the following command to install apache.
 
@@ -194,12 +195,15 @@
 
     * Download and configure WordPress
 
-    We will now proceed to download and uncompress the software by running the following comands.
+    We will now proceed to download and uncompress the software by running the following commands.
 
     wget https://wordpress.org/latest.tar.gz
+
     tar -xzf latest.tar.gz
 
+
     ![alt text](<Images/Image 25.PNG>)
+
 
     To view the contents of our directory called **wordpress** with the uncompressed contents, we run:
 
@@ -207,7 +211,7 @@
 
     ![alt text](<Images/Image 26.PNG>)
 
-    We will change the directory to the wordpress directory and create a copy of the default config file using the following commands
+    We will change the directory to the wordpress directory and create a copy of the default config file using the following commands.
 
     cd wordpress
     cp wp-config-sample.php wp-config.php
@@ -225,7 +229,7 @@
 
     **Deploying WordPress**
 
-    in this step, we make our Apache web server handle requests for WordPress.
+    In this step, we make our Apache web server handle requests for WordPress.
     We install the application dependencies needed for WordPress, we run the following command
 
     sudo amazon-linux-extras install -y mariadb10.5 php8.2
@@ -271,7 +275,7 @@
 ![alt text](<Images/Image 33.PNG>)
 
  
- Next we'll create a security group to allow access from our EC2 instance to our EFS specicifying the following:
+ Next we'll create a security group to allow access from our EC2 instance to our EFS specifying the following:
  Type: NFS
  Port Range: 2049
  Source: 0.0.0.0/0
@@ -298,12 +302,12 @@
 
   Then we check the status of the NFS service to ensure its running
 
-  sudo srvice nfs status
+  sudo service nfs status
 
   ![alt text](<Images/Image 36.PNG>)
 
 
-  We swich to root user with
+  We switch to root user with
 
   sudo su
 
@@ -370,20 +374,191 @@
   ![alt text](<Images/Image 44.PNG>)
 
  * Configuring WordPress to use the shared file system
- 
+
   To configure WordPress to use the shared file system the file permissions will be edited with 
   
   chmod 777 demo.txt
 
   ![alt text](<Images/Image 45.PNG>)
 
-  We can see both instances using the same file system
+
+  We can see both instances using the same file system.
 
 
   ![alt text](<Images/Image 46.PNG>)
 
+
+  ### PART 5
+  **Application Load Balancer**
+
+  In this section ,we will set up an Application Load Balancer to distribute incoming  traffic among multiple instances ensuring high availability and fault tolerance.
+
+  On the AWS console we search and locate to create load balancer.
+  We create an Application load Balancer called **wordpress-ALB**.
+
+  Then, we create Target group to configure the load balancer.
+
+
+
+  ![alt text](<Images/Image 47.PNG>)
+
+
+  ![alt text](<Images/Image 48.PNG>)
+
+
+  We will configure security group for our Load Balancer to allow HTTP traffic on Port 80.
+
+
+  ![alt text](<Images/Image 49.PNG>)
+
+
+  Note: we created two EC2 instances with basic content.
+
+
+
+  ![alt text](<Images/Image 50.PNG>)
+
+
+
+  ![alt text](<Images/Image 51.PNG>)
+
+
+  **Configuring Listener Rules**
+
+  We'll configure listener rules for routing traffic to instances.
+
+  Note: The target group will be the two instances earlier created.
+
+
+
+ ![alt text](<Images/Image 52.PNG>)
+
+  After the Load Balancer is created we check the health of our instances.
+  
+ ![alt text](<Images/Image 53.PNG>)
+
+ From the Load Balancer page, we now copy the DNS of the load balancer and paste on our web browser.
+
+
+ ![alt text](<Images/Image 54.PNG>)
+
+
+
+ Observe that the load balancer is evenly distributing traffic content across both instances created.
+
+
+ ### PART 6
+
+ **Creating Auto scaling Group**
+
+ On the AWS console, we search and locate Auto scaling group and select "create auto scaling group".
+ Next, click "create a launch template" and fill in the relevant fields to complete the creation
+
+
+ We return to Auto scaling group page, choosing the launch template earlier created and specify the required instance attributes as 1 for minimum and 4 for maximum.
+
+ We configure group size and scaling for launching instances for desired capacity, minimum desired capacity and maximum desired capacity.
+
+ We then proceed to create the Auto scaling group.
+
+
+ ![alt text](<Images/Image 55.PNG>)
+
+
+
+ Next, we navigate to the instance management section to observe the behaviour of the Auto scaling group.
+
+ To view this website, we copy the load balancer DNS and paste on the web.
+
+
+  ![alt text](<Images/Image 56.PNG>)
+
+
+  We observe the behaviour when one of the instances is deleted
+
+
+  ![alt text](<Images/Image 57.PNG>)
+
+
+  ![alt text](<Images/Image 58.PNG>)
+
+
+
+Observe that the Auto Scaling Group will automatically launch new instances to maintain the desired state.
+
+
+
+![alt text](<Images/Image 59.PNG>)
+
+
+
+This therefore demonstrates the dynamic nature of ASG which adjusts the number of instances based on the configured desired settings.
+
+
+**Notes on Troubleshhoot Issues:**
+
+In the course of executing this project, some  troubleshoots needed to be resolved to successfully conclude the project.
+
+* RDS Setup
+ While creting a Database, encountered an error command
+
+ _error establishing a database connection._
+
+ to resolve this;
+
+ I re-applied security group configuration by going back to the inbound rules section of my RDS security configuration, in the source section, ensuring its the wordpress security group, (which is the same as the EC2 sg) that is selected.
+
+ ![alt text](<Images/Image 60.PNG>)
+
+ Next, checked my connection to the RDS instance using the MySQL client.
+
+ mysql -h [Endpoint] -P [Port] -u [username] -p[password]
+
+ With the this done there was a successful connection to the RDS.
+
+
+ * EFS setup
+
+ While trying to mount my Efs using the NFS mount command, got an error msg
+
+ Failed to resolve "fs-01f4a427341f6abf1.efs.us-east-1.amazonaws.com" name or server not known
+
+ To resolve this, I checked all configurations and identified that the DNs hostname was not enabled.
+
+ To resolve this :
+
+ I went back to the AWS console, selecting the check box for the VPC, choosing **Actions** and then **Edit VPC**, and proceeded to select **Enable**.
+With this the DNS hostname was enabled and the error resolved.
+
+
+## Conclusion 
+
+This capstone project has extensively demonstrated the WordPress architecture of _DigitalBoost_ marketing agency, detailing the network processes configured.
+
+The various security measures implemented to ensure access are also explained in their various sections.
+
+The WordPress site is shown after setup and we also showcased Auto Scaling Group by stimulating an unhealthy instance.
+
+Some troubleshoot resolutions are detailed in the footnotes above which knowledge could be useful in subsequent projects.
+
+
+
+
+
+ 
+ 
+
+
   
 
+
+
+
+
+
+
+
+  
 
 
 
